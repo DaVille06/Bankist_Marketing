@@ -35,3 +35,35 @@ header.append(msg);
 document
   .querySelector('.btn--close-cookie')
   .addEventListener('click', () => msg.remove());
+
+// styles - get set inline
+msg.style.backgroundColor = '#37383d';
+msg.style.width = '120%';
+
+// only works on inline styles
+// height has not been set as inline, was done through CSS or a class
+console.log(msg.style.height);
+console.log(getComputedStyle(msg).height);
+// inline
+console.log(msg.style.width);
+
+msg.style.height =
+  Number.parseFloat(getComputedStyle(msg).height, 10) + 30 + 'px';
+
+document.documentElement.style.setProperty('--color-primary', 'orangered');
+
+// attributes
+const logo = document.querySelector('.nav__logo');
+logo.alt = 'Beautiful minimalist logo';
+console.log(logo.alt);
+console.log(logo.src);
+console.log(logo.className);
+console.log(logo.getAttribute('designer'));
+logo.setAttribute('company', 'Bankist');
+console.log(logo.getAttribute('company'));
+
+const link = document.querySelector('.nav__link--btn');
+console.log(link.href);
+console.log(link.getAttribute('href'));
+
+console.log(logo.dataset.versionNumber);
