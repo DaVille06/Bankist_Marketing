@@ -3,6 +3,7 @@
 const btnCloseModal = document.querySelector('.btn--close-modal');
 const btnScrollTo = document.querySelector('.btn--scroll-to');
 const btnsOpenModal = document.querySelectorAll('.btn--show-modal');
+const header = document.querySelector('.header');
 const modal = document.querySelector('.modal');
 const nav = document.querySelector('.nav');
 const overlay = document.querySelector('.overlay');
@@ -86,9 +87,40 @@ nav.addEventListener('mouseout', handleHover.bind(1));
 
 // sticky navigation
 // event happens every time the window is scrolled on the page
-const initialCoords = section1.getBoundingClientRect();
-console.log(initialCoords);
-window.addEventListener('scroll', function (e) {
-  if (window.scrollY > initialCoords.top) nav.classList.add('sticky');
+//(inefficient)
+// const initialCoords = section1.getBoundingClientRect();
+// window.addEventListener('scroll', function (e) {
+//   if (window.scrollY > initialCoords.top) nav.classList.add('sticky');
+//   else nav.classList.remove('sticky');
+// });
+
+// intersection observer api
+// const observerCallback = function (entries, observer) {
+//   // entries is an array of threshold entries
+//   entries.forEach(entry => console.log(entry));
+// };
+
+// const observerOpts = {
+//   // element the target is intersecting
+//   // null is viewport
+//   root: null,
+//   // the percentage of intersection of which the callback will be called
+//   threshold: [0, 0.2, 0.6],
+// };
+// const observer = new IntersectionObserver(observerCallback, observerOpts);
+// observer.observe(section1);
+const navHeight = nav.getBoundingClientRect();
+
+const stickyNav = function (entries) {
+  const [entry] = entries;
+  if (!entry.isIntersecting) nav.classList.add('sticky');
   else nav.classList.remove('sticky');
+};
+const headerObserver = new IntersectionObserver(stickyNav, {
+  root: null,
+  threshold: 0,
+  // box of pixels that is applied outside the target
+  // 90 is the height of the nav bar
+  rootMargin: `-${navHeight.height}px`,
 });
+headerObserver.observe(header);
