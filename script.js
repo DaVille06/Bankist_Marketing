@@ -110,7 +110,6 @@ nav.addEventListener('mouseout', handleHover.bind(1));
 // const observer = new IntersectionObserver(observerCallback, observerOpts);
 // observer.observe(section1);
 const navHeight = nav.getBoundingClientRect();
-
 const stickyNav = function (entries) {
   const [entry] = entries;
   if (!entry.isIntersecting) nav.classList.add('sticky');
@@ -120,7 +119,27 @@ const headerObserver = new IntersectionObserver(stickyNav, {
   root: null,
   threshold: 0,
   // box of pixels that is applied outside the target
-  // 90 is the height of the nav bar
   rootMargin: `-${navHeight.height}px`,
 });
 headerObserver.observe(header);
+
+// reveal sections
+const allSections = document.querySelectorAll('.section');
+const revealSection = function (entries, observer) {
+  const [entry] = entries;
+  console.log(entry);
+  if (!entry.isIntersecting) return;
+
+  entry.target.classList.remove('section--hidden');
+  observer.unobserve(entry.target);
+};
+const sectionObserver = new IntersectionObserver(revealSection, {
+  root: null,
+  threshold: 0.15,
+});
+allSections.forEach(function (section) {
+  sectionObserver.observe(section);
+  // once its already been observed we don't need to watch it anymore
+  // better for performance
+  section.classList.add('section--hidden');
+});
