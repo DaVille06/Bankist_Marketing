@@ -1,9 +1,12 @@
 'use strict';
 
+const allSections = document.querySelectorAll('.section');
 const btnCloseModal = document.querySelector('.btn--close-modal');
 const btnScrollTo = document.querySelector('.btn--scroll-to');
 const btnsOpenModal = document.querySelectorAll('.btn--show-modal');
 const header = document.querySelector('.header');
+// selects images which have an attr of data-src
+const imageTargets = document.querySelectorAll('img[data-src]');
 const modal = document.querySelector('.modal');
 const nav = document.querySelector('.nav');
 const overlay = document.querySelector('.overlay');
@@ -124,10 +127,8 @@ const headerObserver = new IntersectionObserver(stickyNav, {
 headerObserver.observe(header);
 
 // reveal sections
-const allSections = document.querySelectorAll('.section');
 const revealSection = function (entries, observer) {
   const [entry] = entries;
-  console.log(entry);
   if (!entry.isIntersecting) return;
 
   entry.target.classList.remove('section--hidden');
@@ -143,3 +144,23 @@ allSections.forEach(function (section) {
   // better for performance
   section.classList.add('section--hidden');
 });
+
+// lazy loading images
+const loadImage = function (entries, observer) {
+  const [entry] = entries;
+
+  if (!entry.isIntersecting) return;
+
+  // replace src with data-src
+  entry.target.src = entry.target.dataset.src;
+  entry.target.addEventListener('load', () =>
+    entry.target.classList.remove('lazy-img')
+  );
+  observer.unobserve(entry.target);
+};
+const imageObserver = new IntersectionObserver(loadImage, {
+  root: null,
+  threshold: 0,
+  rootMargin: '200px',
+});
+imageTargets.forEach(img => imageObserver.observe(img));
