@@ -3,6 +3,8 @@
 const allSections = document.querySelectorAll('.section');
 const btnCloseModal = document.querySelector('.btn--close-modal');
 const btnScrollTo = document.querySelector('.btn--scroll-to');
+const btnSliderLeft = document.querySelector('.slider__btn--left');
+const btnSliderRight = document.querySelector('.slider__btn--right');
 const btnsOpenModal = document.querySelectorAll('.btn--show-modal');
 const header = document.querySelector('.header');
 // selects images which have an attr of data-src
@@ -11,6 +13,8 @@ const modal = document.querySelector('.modal');
 const nav = document.querySelector('.nav');
 const overlay = document.querySelector('.overlay');
 const section1 = document.getElementById('section--1');
+const slider = document.querySelector('.slider');
+const slides = document.querySelectorAll('.slide');
 const tabs = document.querySelectorAll('.operations__tab');
 const tabsContainer = document.querySelector('.operations__tab-container');
 const tabsContent = document.querySelectorAll('.operations__content');
@@ -57,6 +61,7 @@ document.querySelector('.nav__links').addEventListener('click', function (e) {
 // tabbed component
 tabsContainer.addEventListener('click', function (e) {
   const clicked = e.target.closest('.operations__tab');
+  console.log(clicked);
   if (!clicked) return;
 
   tabs.forEach(t => t.classList.remove('operations__tab--active'));
@@ -164,3 +169,42 @@ const imageObserver = new IntersectionObserver(loadImage, {
   rootMargin: '200px',
 });
 imageTargets.forEach(img => imageObserver.observe(img));
+
+// slider functionality
+let currentSlide = 0;
+const maxSlide = slides.length;
+const minSlide = 0;
+const moveThroughSlides = function (slide) {
+  slides.forEach(
+    (s, i) => (s.style.transform = `translateX(${100 * (i - slide)}%)`)
+  );
+};
+
+const nextSlide = function () {
+  if (currentSlide === maxSlide - 1) {
+    currentSlide = 0;
+  } else {
+    currentSlide++;
+  }
+
+  moveThroughSlides(currentSlide);
+};
+
+const previousSlide = function () {
+  if (currentSlide === minSlide) {
+    currentSlide = maxSlide - 1;
+  } else {
+    currentSlide--;
+  }
+
+  moveThroughSlides(currentSlide);
+};
+// call the function here to start the page on 0 spot
+moveThroughSlides(minSlide);
+btnSliderRight.addEventListener('click', nextSlide);
+btnSliderLeft.addEventListener('click', previousSlide);
+document.addEventListener('keydown', event => {
+  console.log('key triggered');
+  if (event.keyCode === 39) nextSlide();
+  else if (event.keyCode === 37) previousSlide();
+});
