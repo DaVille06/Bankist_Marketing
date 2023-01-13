@@ -6,6 +6,7 @@ const btnScrollTo = document.querySelector('.btn--scroll-to');
 const btnSliderLeft = document.querySelector('.slider__btn--left');
 const btnSliderRight = document.querySelector('.slider__btn--right');
 const btnsOpenModal = document.querySelectorAll('.btn--show-modal');
+const dotContainer = document.querySelector('.dots');
 const header = document.querySelector('.header');
 // selects images which have an attr of data-src
 const imageTargets = document.querySelectorAll('img[data-src]');
@@ -151,7 +152,8 @@ allSections.forEach(function (section) {
 });
 
 // lazy loading images
-const loadImage = function (entries, observer) {
+const imagesStarter = function() {
+  const loadImage = function (entries, observer) {
   const [entry] = entries;
 
   if (!entry.isIntersecting) return;
@@ -162,49 +164,109 @@ const loadImage = function (entries, observer) {
     entry.target.classList.remove('lazy-img')
   );
   observer.unobserve(entry.target);
-};
-const imageObserver = new IntersectionObserver(loadImage, {
-  root: null,
-  threshold: 0,
-  rootMargin: '200px',
-});
-imageTargets.forEach(img => imageObserver.observe(img));
+  };
+  const imageObserver = new IntersectionObserver(loadImage, {
+    root: null,
+    threshold: 0,
+    rootMargin: '200px',
+  });
+  imageTargets.forEach(img => imageObserver.observe(img));
+}
+imagesStarter();
 
 // slider functionality
-let currentSlide = 0;
-const maxSlide = slides.length;
-const minSlide = 0;
-const moveThroughSlides = function (slide) {
-  slides.forEach(
-    (s, i) => (s.style.transform = `translateX(${100 * (i - slide)}%)`)
-  );
-};
+const sliderStarter = function() {
+  let currentSlide = 0;
+  const maxSlide = slides.length;
+  const minSlide = 0;
 
-const nextSlide = function () {
-  if (currentSlide === maxSlide - 1) {
-    currentSlide = 0;
-  } else {
-    currentSlide++;
+  const createSliderDots = function () {
+    slides.forEach((_, i) => {
+      // creates an HTML element
+      // "before the end"
+      dotContainer.insertAdjacentHTML(
+        'beforeend',
+        `<button class="dots__dot" data-slide="${i}"></button>`
+      );
+    });
+  };
+
+  const activateDot = function (slide) {
+    // remove class from all dots
+    document.querySelectorAll('.dots__dot').forEach(dot => {
+      dot.classList.remove('dots__dot--active');
+    });
+
+    // you can search for specific attributes using brackets
+    document
+      .querySelector(`.dots__dot[data-slide="${slide}"]`)
+      .classList.add('dots__dot--active');
+  };
+
+  const moveThroughSlides = function (slide) {
+    slides.forEach(
+      (s, i) => (s.style.transform = `translateX(${100 * (i - slide)}%)`)
+    );
+  };
+
+  const nextSlide = function () {
+    if (currentSlide === maxSlide - 1) {
+      currentSlide = 0;
+    } else {
+      currentSlide++;
+    }
+
+    moveThroughSlides(currentSlide);
+    activateDot(currentSlide);
+  };
+
+  const previousSlide = function () {
+    if (currentSlide === minSlide) {
+      currentSlide = maxSlide - 1;
+    } else {
+      currentSlide--;
+    }
+
+    moveThroughSlides(currentSlide);
+    activateDot(currentSlide);
+  };
+
+  const init = function() {
+    moveThroughSlides(minSlide);
+    createSliderDots();
+    activateDot(0);
   }
+  init();
+  // slider event handlers
+  btnSliderRight.addEventListener('click', nextSlide);
+  btnSliderLeft.addEventListener('click', previousSlide);
+  document.addEventListener('keydown', event => {
+    console.log(event);
+    // short circuiting
+    event.key === 'ArrowRight' && nextSlide();
+    event.key === 'ArrowLeft' && previousSlide();
+  });
+  dotContainer.addEventListener('click', function (e) {
+    if (e.target.classList.contains('dots__dot')) {
+      console.log(e.target);
+      // gets the "slide dot clicked"
+      // the dataset returns an object so we can use destructuring to make a variable
+      const { slide } = e.target.dataset;
+      moveThroughSlides(slide);
+      activateDot(slide);
+    }
+  });
+}
+sliderStarter();
 
-  moveThroughSlides(currentSlide);
-};
-
-const previousSlide = function () {
-  if (currentSlide === minSlide) {
-    currentSlide = maxSlide - 1;
-  } else {
-    currentSlide--;
-  }
-
-  moveThroughSlides(currentSlide);
-};
-// call the function here to start the page on 0 spot
-moveThroughSlides(minSlide);
-btnSliderRight.addEventListener('click', nextSlide);
-btnSliderLeft.addEventListener('click', previousSlide);
-document.addEventListener('keydown', event => {
-  console.log('key triggered');
-  if (event.keyCode === 39) nextSlide();
-  else if (event.keyCode === 37) previousSlide();
-});
+document.addEventListener('DOMContentLoaded', function(e) {
+  // code that executes only after the DOM is ready
+})
+window.addEventListener('load', function(e) {
+  // when all images and everything has been loaded and fired 
+})
+window.addEventListener('beforeunload', function(e) {
+  // before the browser closes - shows a pop which asks if you want to leave the site
+  e.preventDefault();
+  e.returnValue = '';
+})
